@@ -1,19 +1,27 @@
 <template>
 	<section>
-		主体介绍页面
+		<div class="main">
+
+		</div>
 	</section>
 </template>
 
 <script>
     import api from '../api/api';
-
     export default {
         data() {
             return {
-
+            	phone:{
+            		link:"",
+            		linkList:"",
+					linkValList:[]
+				},
             }
         },
         methods: {
+			initData(){
+
+			}
         },
         mounted() {
 
@@ -23,6 +31,30 @@
 </script>
 
 <style lang="scss" type="text/scss" scoped>
+
+	.main{
+		width: 1000px;
+		margin: 50px auto;
+		text-align: center;
+	}
+	.phoneTips{
+		font-size: 24px;
+		margin-bottom: 10px;
+		color: #244bc7;
+	}
+	.phoneList{
+		line-height: 40px;
+		font-size: 40px;
+	}
+	.phoneListNo{
+		color: #666;
+	}
+	.phoneListPhone{
+		color: #2e81df;
+	}
+	.phoneListCode{
+		color: #e77911;
+	}
 	.el-row {
 		margin-bottom: 6px;
 	}

@@ -2,7 +2,7 @@
 	<el-row class="container color_base8">
 		<el-col :span="24" class="header bg_primary2 color_base" v-if="',all,noSidebar,'.indexOf(','+nestType+',')>=0">
 			<el-col :span="4" class="logo" :class="collapsed?'logo-collapse-width':'logo-width'">
-				{{collapsed?'':sysName}}
+<!--				{{collapsed?'':sysName}}-->
 			</el-col>
 			<el-col :span="10">
 
@@ -47,14 +47,28 @@
 						text-color="#606978"
 						v-show="!collapsed"
 						active-text-color="#ffd04b">
-					<el-submenu v-for="(item,key) in $router.options.routes" :index="item.path" v-if="item.name">
-						<template slot="title">
-							<i :class="item.iconCls" style="color: #000"></i>
-							<span>{{item.name}}</span>
-						</template>
-						<el-menu-item v-if="item.children" v-for="(itemChild,keyChild) in item.children" :index="itemChild.path">{{itemChild.name}}</el-menu-item>
-					</el-submenu>
+					<el-menu-item  v-for="(item,key) in $router.options.routes[0].children" :index="item.path">
+						<i :class="item.iconCls"></i>
+						<span slot="title">{{item.name}}</span>
+					</el-menu-item>
 				</el-menu>
+<!--				<el-menu-->
+<!--						:default-active='activeNav'-->
+<!--						ref="menuMain"-->
+<!--						class="el-aside-menu"-->
+<!--						:router="true"-->
+<!--						background-color="#f7fafb"-->
+<!--						text-color="#606978"-->
+<!--						v-show="!collapsed"-->
+<!--						active-text-color="#ffd04b">-->
+<!--					<el-submenu v-for="(item,key) in $router.options.routes" :index="item.path" v-if="item.name">-->
+<!--						<template slot="title">-->
+<!--							<i :class="item.iconCls" style="color: #000"></i>-->
+<!--							<span>{{item.name}}</span>-->
+<!--						</template>-->
+<!--						<el-menu-item v-if="item.children" v-for="(itemChild,keyChild) in item.children" :index="itemChild.path">{{itemChild.name}}</el-menu-item>-->
+<!--					</el-submenu>-->
+<!--				</el-menu>-->
 				<!--导航菜单-折叠后-->
 				<ul class="el-menu el-menu-vertical-demo collapsed" v-show="collapsed" ref="menuCollapsed">
 					<li v-for="(item,index) in $router.options.routes" class="el-submenu item">

@@ -7,8 +7,11 @@ module.exports = {
     env: require('./prod.env'),
     index: path.resolve(__dirname, '../dist/vueElement/index.html'),
     assetsRoot: path.resolve(__dirname, '../dist/vueElement'),
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '/vueElement/',
+    // assetsSubDirectory: 'static',
+    //assetsPublicPath: '/vueElement/',
+
+    assetsSubDirectory: '', //七牛发布配置
+    assetsPublicPath: 'http://qiniu.caoapi.com/usa/',//七牛发布配置
     productionSourceMap: false,
     // Gzip off by default as many popular static hosts such as
     // Surge or Netlify already gzip all static assets for you.

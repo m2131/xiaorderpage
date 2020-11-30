@@ -3,36 +3,29 @@ import NotFound from './views/404.vue'
 import Home from './views/Home.vue'
 import Main from './views/Main.vue'
 import projectList from './views/project/projectList.vue'
+import purchase from './views/order/purchase.vue'
+import orderList from './views/order/orderList.vue'
 import Setting from './views/Setting.vue'
 
 let routes = [
-    {
-        path: '/login',
-        component: Login,
-        name: '',
-    },
-    {
-        path: '/404',
-        component: NotFound,
-        name: '',
-    },
-    {
-        path: '/',
-        component: Home,
-        name: '基础页面',
-        iconCls: 'fa fa-home fa-lg',
-        children: [
-            { path: '/main', component: Main, name: '首页' },
-            { path: '/setting', component: Setting, name: '个人设置'}
-        ]
-    },
+    // {
+    //     path: '/Main',
+    //     component: Main,
+    //     name: '美国卡号',
+    //     iconCls: 'fa fa-home fa-lg',
+    //     children: [
+    //         // { path: '/main', component: Main, name: '首页' },
+    //         // { path: '/setting', component: Setting, name: '个人设置'}
+    //     ]
+    // },
     {
         path: '/',
         component: Home,
-        name: '项目管理',
+        name: '订单管理',
         iconCls: 'fa fa-shopping-cart fa-lg',//图标样式class
         children: [
-            { path: '/projectList/:id', component: projectList, name: '项目列表' }
+            { path: '/orderManage/orderList', component: orderList, name: '订单列表' ,iconCls: 'fa fa-list'},
+            { path: '/orderManage/purchase', component: purchase, name: '订单采购',iconCls: 'fa fa-shopping-cart' },
         ]
     }
 ];

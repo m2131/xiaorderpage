@@ -1,11 +1,11 @@
 module.exports = {
     proxyList: {
-/*        '/api':{
-            target: 'http://192.168.1.1:8080',//测试环境
+        '/api':{
+            target: 'http://192.168.3.3:7001',//测试环境
             changeOrigin:true,
             pathRewrite:{
                 '^/api':'/api'
             }
-        },*/
+        },
     }
 }
