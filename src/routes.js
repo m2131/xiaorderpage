@@ -5,6 +5,7 @@ import Main from './views/Main.vue'
 import projectList from './views/project/projectList.vue'
 import purchase from './views/order/purchase.vue'
 import orderList from './views/order/orderList.vue'
+import shopList from './views/shop/shopList.vue'
 import Setting from './views/Setting.vue'
 
 let routes = [
@@ -25,6 +26,7 @@ let routes = [
         iconCls: 'fa fa-shopping-cart fa-lg',//图标样式class
         children: [
             { path: '/orderManage/orderList', component: orderList, name: '订单列表' ,iconCls: 'fa fa-list'},
+            { path: '/shopManage/shopList', component: shopList, name: '店铺管理',iconCls: 'fa fa-shopping-cart' },
             { path: '/orderManage/purchase', component: purchase, name: '订单采购',iconCls: 'fa fa-shopping-cart' },
         ]
     }

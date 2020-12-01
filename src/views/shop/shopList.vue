@@ -41,55 +41,24 @@
                 </el-form>
             </el-col>
             <el-col style="margin-bottom: 10px">
-                <el-button size="mini" type="danger" @click="weOpen()">导入订单</el-button>
+                <el-button size="mini" type="danger" @click="weOpen()">新增店铺</el-button>
             </el-col>
             <el-col>
                 <el-table :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
                           style="width: 100%;">
                     <el-table-column type="index" width="50"></el-table-column>
-                    <el-table-column prop="goodId" label="商品ID" min-width="70"></el-table-column>
-                    <el-table-column prop="userName" label="商户名称" min-width="70"></el-table-column>
-                    <el-table-column prop="goodName" label="商品名称" min-width="70"></el-table-column>
-                    <el-table-column prop="goodAmount" label="商品金额" min-width="70"></el-table-column>
-                    <el-table-column prop="productName" label="商品分类" min-width="70"></el-table-column>
-                    <el-table-column prop="publishTime" label="上架时间" min-width="120"></el-table-column>
-                    <el-table-column prop="status" label="上架状态" min-width="70">
-                        <template scope="scope">
-                            {{scope.row.status=='0'?'未上架':'已上架'}}
-                        </template>
+                    <el-table-column prop="shopID" label="店铺ID" min-width="70"></el-table-column>
+                    <el-table-column prop="shopName" label="店铺名称" min-width="130"></el-table-column>
+                    <el-table-column prop="shopSite" label="店铺站点" min-width="70">
+                      <template scope="scope">
+                        {{GData.shopeeSite[scope.row.shopSite]}}
+                      </template>
                     </el-table-column>
-                    <!--<el-table-column prop="consumeCount" label="消费次数" min-width="70"></el-table-column>-->
-                    <el-table-column prop="titlePicture" label="标题图" min-width="100">
-                        <template scope="scope">
-                            <img  style="height: 60px;" :src="scope.row.titlePicture">
-                        </template>
-                    </el-table-column>
-                    <!--<el-table-column prop="longitude" label="经度" min-width="80"></el-table-column>-->
-                    <!--<el-table-column prop="latitude" label="纬度" min-width="80"></el-table-column>-->
-                    <el-table-column prop="remark" label="服务说明" min-width="120">
-                        <template scope="scope">
-                            <div v-for="item in scope.row.bodyList" v-if="item.title =='服务说明'" class="listContent">
-                                <p v-for="(itemA,indexA) in item.contexts">
-                                    {{itemA.title}}:{{itemA.context}}
-                                </p>
-                            </div>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="remark" label="购买须知" min-width="120">
-                        <template scope="scope">
-                            <div v-for="item in scope.row.bodyList" v-if="item.title =='购买须知'" class="listContent">
-                                <p v-for="(itemA,indexA) in item.contexts">
-                                    {{itemA.title}}:{{itemA.context}}
-                                </p>
-                            </div>
-                        </template>
-                    </el-table-column>
+                    <el-table-column prop="updateDate" label="更新时间" min-width="180"></el-table-column>
                     <el-table-column label="操作" min-width="150">
                         <template scope="scope">
-                            <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
-                            <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
-                            <el-button size="mini" v-if="scope.row.status == '0'" type="danger" @click="wbUpperLower(scope.row,'upper')">上架</el-button>
-                            <el-button size="mini" v-if="scope.row.status == '1'" type="danger" @click="wbUpperLower(scope.row)">下架</el-button>
+                            <el-button size="mini" type="danger" @click="weOpen(scope.row)">编辑</el-button>
+                            <el-button size="mini" type="danger" @click="weDelete(scope.row)">删除</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -109,34 +78,29 @@
 
 
 
-        <el-dialog :visible.sync="weShow" :close-on-click-modal="true" top="3%" width="500px" title="导入订单"
+        <el-dialog :visible.sync="weShow" :close-on-click-modal="true" top="3%" width="500px" :title="weEdit?'修改店铺':'新增店铺'"
                    append-to-body>
             <el-row>
                 <el-col>
-                    <el-form :model="weForm" :inline="true" size="mini" :label-position="'right'" label-width="130px">
-                        <el-form-item label="归属店铺：">
+                    <el-form :model="weForm" ref="weForm" :rules="weFormRules" :inline="true" size="mini" :label-position="'right'" label-width="130px">
+                        <el-form-item label="店铺站点：" prop="shopSite">
                             <el-select filterable
                                        class="widthInput"
-                                       v-model="weForm.shop"
-                                       placeholder="请选择状态">
+                                       v-model="weForm.shopSite"
+                                       placeholder="请选择店铺站点">
                                 <el-option
-                                        v-for="item in options.shop"
+                                        v-for="item in options.shopSite"
                                         :key="item.value"
                                         :label="item.label"
                                         :value="item.value">
                                 </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="订单xls：">
-                            <el-upload  class="upload-file"
-                                        name="xlsFile"
-                                        :data="weForm"
-                                        v-model="weForm.file"
-                                        :auto-upload="false"
-                                        ref="orderUpload"
-                                        action="/api/uploadOrder">
-                                <el-button size="small" type="primary">导入订单</el-button>
-                            </el-upload>
+                        <el-form-item label="店铺账号：" prop="shopID">
+                          <el-input v-model.trim="weForm.shopID" placeholder="请输入店铺账号"></el-input>
+                        </el-form-item>
+                        <el-form-item label="店铺名称：" prop="shopName">
+                          <el-input v-model.trim="weForm.shopName" placeholder="请输入店铺名称"></el-input>
                         </el-form-item>
                     </el-form>
                 </el-col>
@@ -175,12 +139,32 @@
                         {value: 'xj_zwf', label: 'xj_zwf'},
                         {value: 'xj_lw.my', label: 'xj_lw.my'},
                         {value: 'xj_lw.ph', label: 'xj_lw.ph'},
-                    ]
+                    ],
+                    shopSite:[
+                        {value: 'tw', label: '台湾'},
+                        {value: 'ph', label: '菲律宾'},
+                        {value: 'my', label: '马来西亚'},
+                        {value: 'th', label: '泰国'},
+                        {value: 'sg', label: '新加坡'},
+                        {value: 'id', label: '印度尼西亚'},
+                    ],
+                    status:[
+                        {value: '', label: '全部'},
+                        {value: '0', label: '未上架'},
+                        {value: '1', label: '已上架'},
+                    ],
                 },
                 weShow:false,
+                weEdit:false,
                 weForm:{
-                    file:'',
-                    shop:'',
+                    shopSite:'',
+                    shopID:'',
+                    shopName:'',
+                },
+                weFormRules: {
+                  shopID: [{required: true, message: '请输入店铺账号', trigger: 'blur'}],
+                  shopSite: [{required: true, message: '请选择店铺站点', trigger: 'blur'}],
+                  shopName: [{required: true, message: '请输入店铺名称', trigger: 'blur'}],
                 },
                 loading:true,
                 iframeUrl:""
@@ -204,7 +188,7 @@
                         delete postData[key]
                     }
                 }
-                api.post('/api/orderList')(postData).then((result) => {
+                api.get('/api/shopList')(postData).then((result) => {
                     if(result.status == "200"){
                         that.wbList = result.data;
                         that.wbTotal = result.rowCount;
@@ -234,24 +218,73 @@
                 this.wbPage = val;
                 this.wbQuery();
             },
-            weOpen(){
+            weOpen(row){
+                if(row){
+                  this.weForm = row;
+                  this.weEdit = true;
+                }else{
+                  this.weForm = {
+                    shopSite:'',
+                    shopID:'',
+                    shopName:'',
+                  }
+                  this.weEdit = false;
+                }
                 this.weShow = true;
             },
             weSubmit(){
-                this.$refs.orderUpload.submit();
-            },
-            queryShop(){
-              api.get('/api/shopList')({}).then((result) => {
-                this.options.shop = [];
-                result.data.forEach((item,index)=>{
-                  this.options.shop.push({label:item.shopName,value:item._id});
-                })
+              let that = this;
+              let postData = {
+                ...this.weForm
+              }
+              let url = "api/shopCreate";
+              postData._id && (url = "api/shopUpdate");
+              this.$refs.weForm.validate((valid) => {
+                if (valid) {
+                  api.post(url)(postData).then((data) => {
+                    if(data.status == "200"){
+                      that.$message({
+                        message: postData._id?'修改成功':'新增成功！',
+                        type: 'success'
+                      });
+                      that.wbQuery();
+                      that.weShow = false;
+                    }else{
+                      that.$message({
+                        message: data.msg?data.msg:'操作失败！',
+                        type: 'success'
+                      });
+                    }
+                  })
+                }
               })
             },
+            weDelete(row) {
+              let that = this;
+              this.$confirm('确定删除该店铺?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                api.post("api/shopRemoves")({id: row._id}).then((data) => {
+                  if (data.status == "200") {
+                    that.$message({
+                      message: '删除成功',
+                      type: 'success'
+                    });
+                    that.wbQuery();
+                  } else {
+                    that.$message({
+                      message: data.msg ? data.msg : '操作失败！',
+                      type: 'success'
+                    });
+                  }
+                })
+              })
+            }
         },
         mounted() {
             this.wbQuery();
-            this.queryShop();
         }
     }
 

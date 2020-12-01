@@ -4,6 +4,14 @@ export default {
     {
             // 全局变量
         Vue.prototype.GData= {
+            shopeeSite:{
+                'tw':'台湾',
+                'ph':'菲律宾',
+                'my':'马来西亚',
+                'th':'泰国',
+                'sg':'新加坡',
+                'id':'印度尼西亚',
+            },
             typeName:{
                 "01":"名称1",
                 "02":"名称2"
