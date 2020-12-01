@@ -41,10 +41,7 @@
                 </el-form>
             </el-col>
             <el-col style="margin-bottom: 10px">
-                <el-upload  class="upload-file"
-                            action="/api/uploadFile">
-                    <el-button size="small" type="primary">导入订单</el-button>
-                </el-upload>
+                <el-button size="mini" type="danger" @click="weOpen()">导入订单</el-button>
             </el-col>
             <el-col>
                 <el-table :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
@@ -109,6 +106,45 @@
                 </el-pagination>
             </el-col>
         </el-row>
+
+
+
+        <el-dialog :visible.sync="weShow" :close-on-click-modal="true" top="3%" width="500px" title="导入订单"
+                   append-to-body>
+            <el-row>
+                <el-col>
+                    <el-form :model="weForm" :inline="true" size="mini" :label-position="'right'" label-width="130px">
+                        <el-form-item label="归属店铺：">
+                            <el-select filterable
+                                       class="widthInput"
+                                       v-model="weForm.shop"
+                                       placeholder="请选择状态">
+                                <el-option
+                                        v-for="item in options.shop"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="订单xls：">
+                            <el-upload  class="upload-file"
+                                        name="xlsFile"
+                                        :data="weForm"
+                                        v-model="weForm.file"
+                                        :auto-upload="false"
+                                        ref="orderUpload"
+                                        action="/api/uploadOrder">
+                                <el-button size="small" type="primary">导入订单</el-button>
+                            </el-upload>
+                        </el-form-item>
+                    </el-form>
+                </el-col>
+                <el-col :span="24" style="text-align: center;margin-top: 30px;">
+                    <el-button type="primary" size="large" @click="weSubmit()">保存</el-button>
+                </el-col>
+            </el-row>
+        </el-dialog>
     </section>
 </template>
 
@@ -135,6 +171,11 @@
                 wbPageNum:10,
                 wbPage:1,
                 options: {
+                    shop:[
+                        {value: 'xj_zwf', label: 'xj_zwf'},
+                        {value: 'xj_lw.my', label: 'xj_lw.my'},
+                        {value: 'xj_lw.ph', label: 'xj_lw.ph'},
+                    ],
                     timeType:[
                         {value: 'GMT_CREATE', label: '创建日期'},
                         {value: 'GMT_UPDATE', label: '更新日期'},
@@ -160,6 +201,11 @@
                         {value: '16', label: '法人证书'},
                         {value: '17', label: '台胞证'},
                     ],
+                },
+                weShow:false,
+                weForm:{
+                    file:'',
+                    shop:'',
                 },
                 loading:true,
                 iframeUrl:""
@@ -214,6 +260,12 @@
                 this.wbPage = val;
                 this.wbQuery();
             },
+            weOpen(){
+                this.weShow = true;
+            },
+            weSubmit(){
+                this.$refs.orderUpload.submit();
+            }
         },
         mounted() {
             this.wbQuery();
