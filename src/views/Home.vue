@@ -46,7 +46,7 @@
 						background-color="#f7fafb"
 						text-color="#606978"
 						v-show="!collapsed"
-						active-text-color="#ffd04b">
+						active-text-color="#118ae0">
 					<el-menu-item  v-for="(item,key) in $router.options.routes[0].children" :index="item.path">
 						<i :class="item.iconCls"></i>
 						<span slot="title">{{item.name}}</span>
@@ -100,11 +100,11 @@
 	export default {
 		data() {
 			return {
-                activeNav:"",
+        activeNav:"/orderList",
 				sysName:this.getUrlData().title?this.getUrlData().title:'vueElement',
 				collapsed:false,
 				sysUserName: '',
-                sysOrgName: '',
+        sysOrgName: '',
 				sysUserAvatar: '',
 				form: {
 					name: '',
@@ -116,26 +116,31 @@
 					resource: '',
 					desc: ''
 				},
-                nestType:this.getUrlData().nestType?this.getUrlData().nestType:'all'
+        nestType:this.getUrlData().nestType?this.getUrlData().nestType:'all'
 			}
 		},
 		methods: {
-            targetPath(match){
+      queryShop(){
+        api.get('/api/shopList')({}).then((result) => {
+          if(result.status == "200"){
+            this.shop = result.data;
+          }
+        })
+      },
+      targetPath(match){
 				let tempPath=this.$route.path,
 					regex = new RegExp("/", 'g'), // 使用g表示整个字符串都要匹配
 					resultCurrent = match.match(regex),
 					countCurrent = !resultCurrent ? 0 : resultCurrent.length,
 					resultFull = tempPath.match(regex),
 					countFull = !resultFull ? 0 : resultFull.length;
-                while(countCurrent<countFull){
+        while(countCurrent<countFull){
 					let tempIndex=tempPath.lastIndexOf("/");
 					tempPath=tempPath.substring(0,tempIndex);
-                    resultFull = tempPath.match(regex);
-                    countFull = !resultFull ? 0 : resultFull.length;
+          resultFull = tempPath.match(regex);
+          countFull = !resultFull ? 0 : resultFull.length;
 				};
-                return tempPath;
-
-
+        return tempPath;
 			},
 			//退出登录
 			logout: function () {
@@ -149,33 +154,33 @@
 				});
 			},
 			//设置页面 可查看个人信息与重置密码
-            setting: function () {
-                this.$router.push({path: '/setting'});
-            },
+      setting: function () {
+          this.$router.push({path: '/setting'});
+      },
 			//折叠导航栏
 			collapse:function(){
 				this.collapsed=!this.collapsed;
-                this.$refs.menuMain.$el.style.width='188px';
+        this.$refs.menuMain.$el.style.width='188px';
 			},
 			showMenu(i,status){
 				this.$refs.menuCollapsed.getElementsByClassName('submenu-hook-'+i)[0].style.display=status?'block':'none';
 			},
-            ...mapGetters([
-                    'getToken',
-					'getUserInfo',
-					'getUrlData',
-                ]
-            ),
-            ...mapActions([
-                    'setToken',
-                    'saveUserInfo'
-                ]
-            ),
+      ...mapGetters([
+          'getToken',
+          'getUserInfo',
+          'getUrlData',
+        ]
+      ),
+      ...mapActions([
+          'setToken',
+          'saveUserInfo'
+        ]
+      ),
 		},
 		mounted() {
 		},
 		created(){
-
+		  this.activeNav = this.$route.fullPath;
 		}
 
 	}

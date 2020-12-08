@@ -25,8 +25,8 @@ let routes = [
         name: '订单管理',
         iconCls: 'fa fa-shopping-cart fa-lg',//图标样式class
         children: [
-            { path: '/orderManage/orderList', component: orderList, name: '订单列表' ,iconCls: 'fa fa-list'},
-            { path: '/shopManage/shopList', component: shopList, name: '店铺管理',iconCls: 'fa fa-shopping-cart' },
+            { path: '/orderList', component: orderList, name: '订单列表' ,iconCls: 'fa fa-list'},
+            { path: '/shopList', component: shopList, name: '店铺管理',iconCls: 'fa fa-shopping-cart' },
             { path: '/orderManage/purchase', component: purchase, name: '订单采购',iconCls: 'fa fa-shopping-cart' },
         ]
     }

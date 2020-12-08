@@ -1,106 +1,267 @@
 <template>
     <section style="background: #fff;padding: 20px;">
         <el-row>
-            <el-col :span="24">
-                <el-form :inline="true"
-                         size="small"
-                         :model="wbSearch"
-                         :label-position="'left'"
-                         type="flex"
-                         justify="space-around">
-                    <el-form-item>
-                        <el-select filterable
-                                   class="widthInput"
-                                   v-model="wbSearch.status"
-                                   placeholder="请选择状态">
-                            <el-option
-                                    v-for="item in options.status"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-input v-model.trim="wbSearch.userName" placeholder="请输入商户名称"></el-input>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-input v-model.trim="wbSearch.goodName" placeholder="请输入商品名称"></el-input>
-                    </el-form-item>
-
-                    <el-form-item>
-                        <el-button type="primary"
-                                   v-on:click="wbSelect"
-                                   icon="el-icon-search">
-                        </el-button>
-                        <el-button type="default"
-                                   @click="wbReset"
-                                   icon="el-icon-refresh">
-                        </el-button>
-                    </el-form-item>
-                </el-form>
+            <el-col>
+              <el-radio-group v-model="shopID" size="mini" @change="changeShop">
+                <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+              </el-radio-group>
+              <el-radio-group v-model="shopID" size="mini" style="margin:5px 0;" @change="changeShop">
+                <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+              </el-radio-group>
+              <el-radio-group v-model="shopID" size="mini" @change="changeShop">
+                <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+              </el-radio-group>
             </el-col>
-            <el-col style="margin-bottom: 10px">
-                <el-button size="mini" type="danger" @click="weOpen()">导入订单</el-button>
+<!--            <el-col :span="24">-->
+<!--                <el-form :inline="true"-->
+<!--                         size="small"-->
+<!--                         :model="wbSearch"-->
+<!--                         :label-position="'left'"-->
+<!--                         type="flex"-->
+<!--                         justify="space-around">-->
+<!--                    <el-form-item>-->
+<!--                        <el-select filterable-->
+<!--                                   class="widthInput"-->
+<!--                                   v-model="wbSearch.status"-->
+<!--                                   placeholder="请选择状态">-->
+<!--                            <el-option-->
+<!--                                    v-for="item in options.status"-->
+<!--                                    :key="item.value"-->
+<!--                                    :label="item.label"-->
+<!--                                    :value="item.value">-->
+<!--                            </el-option>-->
+<!--                        </el-select>-->
+<!--                    </el-form-item>-->
+<!--                    <el-form-item>-->
+<!--                        <el-input v-model.trim="wbSearch.userName" placeholder="请输入商户名称"></el-input>-->
+<!--                    </el-form-item>-->
+<!--                    <el-form-item>-->
+<!--                        <el-input v-model.trim="wbSearch.goodName" placeholder="请输入商品名称"></el-input>-->
+<!--                    </el-form-item>-->
+
+<!--                    <el-form-item>-->
+<!--                        <el-button type="primary"-->
+<!--                                   v-on:click="wbSelect"-->
+<!--                                   icon="el-icon-search">-->
+<!--                        </el-button>-->
+<!--                        <el-button type="default"-->
+<!--                                   @click="wbReset"-->
+<!--                                   icon="el-icon-refresh">-->
+<!--                        </el-button>-->
+<!--                    </el-form-item>-->
+<!--                </el-form>-->
+<!--            </el-col>-->
+            <el-col style="margin: 10px 0;">
+                <el-button size="mini" type="danger" @click="weOpen('order')">导入订单</el-button>
+                <el-button size="mini" type="danger" @click="weOpen('income')">导入打款</el-button>
             </el-col>
             <el-col>
-                <el-table :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
+                <el-table v-if="shopSite=='tw'" :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
                           style="width: 100%;">
                     <el-table-column type="index" width="50"></el-table-column>
-                    <el-table-column prop="goodId" label="商品ID" min-width="70"></el-table-column>
-                    <el-table-column prop="userName" label="商户名称" min-width="70"></el-table-column>
-                    <el-table-column prop="goodName" label="商品名称" min-width="70"></el-table-column>
-                    <el-table-column prop="goodAmount" label="商品金额" min-width="70"></el-table-column>
-                    <el-table-column prop="productName" label="商品分类" min-width="70"></el-table-column>
-                    <el-table-column prop="publishTime" label="上架时间" min-width="120"></el-table-column>
-                    <el-table-column prop="status" label="上架状态" min-width="70">
-                        <template scope="scope">
-                            {{scope.row.status=='0'?'未上架':'已上架'}}
-                        </template>
+                    <el-table-column prop="OrderID" label="单号" min-width="130"></el-table-column>
+                    <el-table-column prop="OrderStatus" label="状态" min-width="70"></el-table-column>
+                    <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="120"></el-table-column>
+                    <el-table-column prop="DeliveryMethod" label="寄送方式" min-width="120"></el-table-column>
+                    <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
+                    <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="300"></el-table-column>
+                    <el-table-column prop="buyPrice" label="采购" min-width="80">
+                      <template scope="scope">
+                        <span>￥{{scope.row.buyPrice}}</span>
+                      </template>
                     </el-table-column>
-                    <!--<el-table-column prop="consumeCount" label="消费次数" min-width="70"></el-table-column>-->
-                    <el-table-column prop="titlePicture" label="标题图" min-width="100">
-                        <template scope="scope">
-                            <img  style="height: 60px;" :src="scope.row.titlePicture">
-                        </template>
+                    <el-table-column prop="DealPrice" label="商品售价(台)" min-width="90">
+                      <template scope="scope">
+<!--                        <span style="color: #ccc;display: block;font-size: 14px">￥{{ (scope.row.DealPrice*0.2313).toFixed(2)}}</span>-->
+                        <span style="color: #2494dc">{{scope.row.DealPrice}}</span>
+                      </template>
                     </el-table-column>
-                    <!--<el-table-column prop="longitude" label="经度" min-width="80"></el-table-column>-->
-                    <!--<el-table-column prop="latitude" label="纬度" min-width="80"></el-table-column>-->
-                    <el-table-column prop="remark" label="服务说明" min-width="120">
-                        <template scope="scope">
-                            <div v-for="item in scope.row.bodyList" v-if="item.title =='服务说明'" class="listContent">
-                                <p v-for="(itemA,indexA) in item.contexts">
-                                    {{itemA.title}}:{{itemA.context}}
-                                </p>
-                            </div>
-                        </template>
-                    </el-table-column>
-                    <el-table-column prop="remark" label="购买须知" min-width="120">
-                        <template scope="scope">
-                            <div v-for="item in scope.row.bodyList" v-if="item.title =='购买须知'" class="listContent">
-                                <p v-for="(itemA,indexA) in item.contexts">
-                                    {{itemA.title}}:{{itemA.context}}
-                                </p>
-                            </div>
-                        </template>
-                    </el-table-column>
+                    <el-table-column prop="_AppropriationMoney" label="拨款(台)" min-width="80"></el-table-column>
+                    <el-table-column prop="_RealityExpressFee" label="实际运费" min-width="80"></el-table-column>
+                    <el-table-column prop="_BuyerExpressFee" label="买家运费" min-width="80"></el-table-column>
+                    <el-table-column prop="_ShopeeExpressFee" label="XP运费补贴" min-width="90"></el-table-column>
+                    <el-table-column prop="_TransactionFee" label="交易手续费" min-width="80"></el-table-column>
+                    <el-table-column prop="_ServiceFee" label="服务费" min-width="80"></el-table-column>
+                    <el-table-column prop="_Commission" label="佣金" min-width="80"></el-table-column>
+                    <el-table-column prop="_RefundAmount" label="退款金額" min-width="80"></el-table-column>
+
+
+
+<!--                  <el-table-column prop="TransactionFee" label="成交手续费" min-width="80"></el-table-column>-->
+<!--                  <el-table-column prop="ActionFee" label="活动服务费" min-width="80"></el-table-column>-->
+<!--                  <el-table-column prop="CashFlowsFee" label="金流服务费" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="OrderSubtotal" label="订单小计" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="TotalAmount" label="订单总额" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="BuyerAccount" label="C账号" min-width="120"></el-table-column>-->
+<!--                    <el-table-column prop="BuyerExpressFee" label="C运费" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="CancelReason" label="取消原因" min-width="140"></el-table-column>-->
+<!--                    <el-table-column prop="ShopeeRebate" label="虾皮补贴" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="ShopeeCoinsOffset" label="虾币折抵" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="CreditCardDiscountTotal" label="虾皮信用卡折抵" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="ShopeeCoinsVoucher" label="虾币回馈券" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="ShopeeBundleDiscount" label="虾皮折扣券折抵" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="CreditCardFee" label="信用卡手续费利率" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="ProductName" label="商品名称" min-width="120"></el-table-column>-->
+<!--                    <el-table-column prop="OriginalPrice" label="商品原价" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="DealPrice" label="商品活动价" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="ParentSKUReferenceNo" label="主商品货号" min-width="120"></el-table-column>-->
+<!--                    <el-table-column prop="BundleDealIndicator" label="促销组合指标" min-width="50"></el-table-column>-->
+<!--                    <el-table-column prop="DeliveryAddress" label="C地址" min-width="120"></el-table-column>-->
+<!--                    <el-table-column prop="PhoneNumber" label="C电话" min-width="120"></el-table-column>-->
+<!--                    <el-table-column prop="ZipCode" label="C邮编)" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="ReceiverName" label="C姓名 (單)" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="ShipmentMethod" label="出货方式" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="PaymentMethod" label="付款方式" min-width="80"></el-table-column>-->
+<!--                    <el-table-column prop="OrderPaidTime" label="C付款時間" min-width="120"></el-table-column>-->
+                    <el-table-column prop="updateDate" label="更新时间" min-width="120":formatter="GTools.formatDate"></el-table-column>
                     <el-table-column label="操作" min-width="150">
                         <template scope="scope">
                             <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
                             <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
-                            <el-button size="mini" v-if="scope.row.status == '0'" type="danger" @click="wbUpperLower(scope.row,'upper')">上架</el-button>
-                            <el-button size="mini" v-if="scope.row.status == '1'" type="danger" @click="wbUpperLower(scope.row)">下架</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
+
+
+              <el-table v-if="shopSite=='my'" :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
+                        style="width: 100%;">
+                <el-table-column type="index" width="50"></el-table-column>
+                <el-table-column prop="OrderID" label="单号" min-width="130"></el-table-column>
+                <el-table-column prop="OrderStatus" label="状态" min-width="70"></el-table-column>
+                <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="120"></el-table-column>
+                <el-table-column prop="DeliveryMethod" label="寄送方式" min-width="120"></el-table-column>
+                <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
+                <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="300"></el-table-column>
+                <el-table-column prop="buyPrice" label="采购" min-width="80">
+                  <template scope="scope">
+                    <span>￥{{scope.row.buyPrice}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="DealPrice" label="商品售价(马)" min-width="90">
+                  <template scope="scope">
+                    <!--                        <span style="color: #ccc;display: block;font-size: 14px">￥{{ (scope.row.DealPrice*0.2313).toFixed(2)}}</span>-->
+                    <span style="color: #2494dc">{{scope.row.DealPrice}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="_AppropriationMoney" label="拨款(马)" min-width="80"></el-table-column>
+                <el-table-column prop="_RealityExpressFee" label="实际运费" min-width="80"></el-table-column>
+                <el-table-column prop="_BuyerExpressFee" label="买家运费" min-width="80"></el-table-column>
+                <el-table-column prop="_ShopeeExpressFee" label="XP运费补贴" min-width="90"></el-table-column>
+                <el-table-column prop="_TransactionFee" label="交易手续费" min-width="80"></el-table-column>
+                <el-table-column prop="_ServiceFee" label="服务费" min-width="80"></el-table-column>
+                <el-table-column prop="_Commission" label="佣金" min-width="80"></el-table-column>
+                <el-table-column prop="_RefundAmount" label="退款金額" min-width="80"></el-table-column>
+
+
+<!--                <el-table-column prop="SellerBundleDiscount" label="B折扣券" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="TransactionFee" label="成交手续费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="ActionFee" label="活动服务费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="CashFlowsFee" label="金流服务费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="OrderSubtotal" label="订单小计" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="TotalAmount" label="订单总额" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="BuyerAccount" label="C账号" min-width="120"></el-table-column>-->
+<!--                <el-table-column prop="BuyerExpressFee" label="C运费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="CancelReason" label="取消原因" min-width="140"></el-table-column>-->
+<!--                <el-table-column prop="ShopeeRebate" label="虾皮补贴" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="ShopeeCoinsOffset" label="虾币折抵" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="CreditCardDiscountTotal" label="虾皮信用卡折抵" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ShopeeCoinsVoucher" label="虾币回馈券" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ShopeeBundleDiscount" label="虾皮折扣券折抵" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="CreditCardFee" label="信用卡手续费利率" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ProductName" label="商品名称" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="OriginalPrice" label="商品原价" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="DealPrice" label="商品活动价" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ParentSKUReferenceNo" label="主商品货号" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="BundleDealIndicator" label="促销组合指标" min-width="50"></el-table-column>-->
+                <!--                    <el-table-column prop="DeliveryAddress" label="C地址" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="PhoneNumber" label="C电话" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="ZipCode" label="C邮编)" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ReceiverName" label="C姓名 (單)" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ShipmentMethod" label="出货方式" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="PaymentMethod" label="付款方式" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="OrderPaidTime" label="C付款時間" min-width="120"></el-table-column>-->
+                <el-table-column prop="updateDate" label="更新时间" min-width="120":formatter="GTools.formatDate"></el-table-column>
+                <el-table-column label="操作" min-width="150">
+                  <template scope="scope">
+                    <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
+                    <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+
+              <el-table v-if="shopSite=='ph'" :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
+                        style="width: 100%;">
+                <el-table-column type="index" width="50"></el-table-column>
+                <el-table-column prop="OrderID" label="单号" min-width="135"></el-table-column>
+                <el-table-column prop="OrderStatus" label="状态" min-width="70"></el-table-column>
+                <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="120"></el-table-column>
+                <el-table-column prop="DeliveryMethod" label="寄送方式" min-width="120"></el-table-column>
+                <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
+                <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="300"></el-table-column>
+                <el-table-column prop="buyPrice" label="采购" min-width="80">
+                  <template scope="scope">
+                    <span>￥{{scope.row.buyPrice}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="DealPrice" label="商品售价(菲)" min-width="90">
+                  <template scope="scope">
+                    <!--                        <span style="color: #ccc;display: block;font-size: 14px">￥{{ (scope.row.DealPrice*0.2313).toFixed(2)}}</span>-->
+                    <span style="color: #2494dc">{{scope.row.DealPrice}}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="_AppropriationMoney" label="拨款(菲)" min-width="80"></el-table-column>
+                <el-table-column prop="_RealityExpressFee" label="实际运费" min-width="80"></el-table-column>
+                <el-table-column prop="_BuyerExpressFee" label="买家运费" min-width="80"></el-table-column>
+                <el-table-column prop="_ShopeeExpressFee" label="XP运费补贴" min-width="90"></el-table-column>
+                <el-table-column prop="_TransactionFee" label="交易手续费" min-width="80"></el-table-column>
+                <el-table-column prop="_ServiceFee" label="服务费" min-width="80"></el-table-column>
+                <el-table-column prop="_Commission" label="佣金" min-width="80"></el-table-column>
+                <el-table-column prop="_RefundAmount" label="退款金額" min-width="80"></el-table-column>
+
+
+<!--                <el-table-column prop="SellerBundleDiscount" label="B折扣券" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="TransactionFee" label="成交手续费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="ActionFee" label="活动服务费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="CashFlowsFee" label="金流服务费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="OrderSubtotal" label="订单小计" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="TotalAmount" label="订单总额" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="BuyerAccount" label="C账号" min-width="120"></el-table-column>-->
+<!--                <el-table-column prop="BuyerExpressFee" label="C运费" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="CancelReason" label="取消原因" min-width="140"></el-table-column>-->
+<!--                <el-table-column prop="ShopeeRebate" label="虾皮补贴" min-width="80"></el-table-column>-->
+<!--                <el-table-column prop="ShopeeCoinsOffset" label="虾币折抵" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="CreditCardDiscountTotal" label="虾皮信用卡折抵" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ShopeeCoinsVoucher" label="虾币回馈券" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ShopeeBundleDiscount" label="虾皮折扣券折抵" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="CreditCardFee" label="信用卡手续费利率" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ProductName" label="商品名称" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="OriginalPrice" label="商品原价" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="DealPrice" label="商品活动价" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ParentSKUReferenceNo" label="主商品货号" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="BundleDealIndicator" label="促销组合指标" min-width="50"></el-table-column>-->
+                <!--                    <el-table-column prop="DeliveryAddress" label="C地址" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="PhoneNumber" label="C电话" min-width="120"></el-table-column>-->
+                <!--                    <el-table-column prop="ZipCode" label="C邮编)" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ReceiverName" label="C姓名 (單)" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="ShipmentMethod" label="出货方式" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="PaymentMethod" label="付款方式" min-width="80"></el-table-column>-->
+                <!--                    <el-table-column prop="OrderPaidTime" label="C付款時間" min-width="120"></el-table-column>-->
+                <el-table-column prop="updateDate" label="更新时间" min-width="120":formatter="GTools.formatDate"></el-table-column>
+                <el-table-column label="操作" min-width="150">
+                  <template scope="scope">
+                    <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
+                    <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
             </el-col>
             <el-col :span="24"
                     class="toolbar toolBarPagination">
                 <el-pagination layout="total, prev, pager, next, jumper"
                                background
                                @current-change="(value) => wbCurrentChange(value)"
-                               :page-size="10"
-                               :current-page="wbPage"
+                               :page-size="wbPageSize"
+                               :current-page="wbPageNo"
                                :total="wbTotal"
                                style="float:right;margin-top: 10px;">
                 </el-pagination>
@@ -109,25 +270,28 @@
 
 
 
-        <el-dialog :visible.sync="weShow" :close-on-click-modal="true" top="3%" width="500px" title="导入订单"
+        <el-dialog :visible.sync="weShow" :close-on-click-modal="true" top="3%" width="550px" :title="xlsType=='order'?'导入订单':'导入打款'"
                    append-to-body>
             <el-row>
                 <el-col>
-                    <el-form :model="weForm" :inline="true" size="mini" :label-position="'right'" label-width="130px">
+                    <el-form :model="weForm" :label-position="'right'" label-width="100px">
                         <el-form-item label="归属店铺：">
                             <el-select filterable
-                                       class="widthInput"
-                                       v-model="weForm.shop"
-                                       placeholder="请选择状态">
+                                       v-model="weForm.shopID"
+                                       @change="(item)=>{weForm.shopSite = shopObj[item].shopSite;weForm.shopName = shopObj[item].shopName}"
+                                       placeholder="请选择店铺">
                                 <el-option
                                         v-for="item in options.shop"
                                         :key="item.value"
-                                        :label="item.label"
+                                        :label="item.label+' - '+item.site"
                                         :value="item.value">
+                                  <span style="color: #1689ee;width: 60px;display: inline-block;">{{item.label}}</span>
+                                  <span style="color: #ccc;width: 60px;display: inline-block;">{{item.site}}</span>
+                                  <span>{{item.name}}</span>
                                 </el-option>
                             </el-select>
                         </el-form-item>
-                        <el-form-item label="订单xls：">
+                        <el-form-item :label="xlsType=='order'?'订单xls':'打款xls'">
                             <el-upload  class="upload-file"
                                         name="xlsFile"
                                         :data="weForm"
@@ -135,7 +299,7 @@
                                         :auto-upload="false"
                                         ref="orderUpload"
                                         action="/api/uploadOrder">
-                                <el-button size="small" type="primary">导入订单</el-button>
+                                <el-button size="small" type="primary">选择{{ xlsType=='order'?'订单':'打款' }}xls</el-button>
                             </el-upload>
                         </el-form-item>
                     </el-form>
@@ -153,23 +317,20 @@
     export default {
         data() {
             return {
+                shop:[],
+                shopObj:{},
+                shopID:'xj_zwf',
+                shopSite:'tw',
+                xlsType:"order",
                 wbSearch:{
-                    status:'',
-                    buyId:'',
-                    timeType:'',
-                    time:'',
-                    startTime:'',
-                    endTime:'',
-                    userName:'',
-                    productId:'',
-                    goodName:'',
+
                 },
                 wbList:[],
                 wbShow:false,
                 wblistLoading:false,
                 wbTotal:1,
-                wbPageNum:10,
-                wbPage:1,
+                wbPageSize:10,
+                wbPageNo:1,
                 options: {
                     shop:[
                         {value: 'xj_zwf', label: 'xj_zwf'},
@@ -180,77 +341,70 @@
                 weShow:false,
                 weForm:{
                     file:'',
-                    shop:'',
+                    shopID:'',
                 },
                 loading:true,
                 iframeUrl:""
             }
         },
         methods: {
+            changeShop(row){
+              this.shopSite = this.shopObj[row].shopSite;
+              this.wbQuery();
+            },
             wbQuery(){
                 let that = this;
                 let postData = {
                     ...this.wbSearch,
-                    pageNo: this.wbPage,
-                    pageSize: 10,
-                }
-                if(postData.time){
-                    postData.startTime = postData.time[0];
-                    postData.endTime = postData.time[1];
-                    delete postData.time;
-                }
-                for(let key in postData){
-                    if(!postData[key]){
-                        delete postData[key]
-                    }
+                    shopID: this.shopID,
+                    shopSite: this.shopSite,
+                    pageNo: this.wbPageNo,
+                    pageSize: this.wbPageSize,
                 }
                 api.post('/api/orderList')(postData).then((result) => {
                     if(result.status == "200"){
-                        that.wbList = result.data;
-                        that.wbTotal = result.rowCount;
-                        that.wbPage = result.pageNo;
+                        that.wbList = result.data.docs;
+                        that.wbPageSize = result.data.pageInfo.pageSize;
+                        that.wbPageNo = result.data.pageInfo.current;
+                        that.wbTotal = result.data.pageInfo.totalItems;
                     }else{
                         that.wbList = [];
                         that.wbTotal = 0;
-                        that.wbPage = 1;
+                        that.wbPageNo = 1;
                     }
                 })
             },
             wbSelect(){
-                this.wbPage = 1;
+                this.wbPageNo = 1;
                 this.wbQuery();
             },
             wbReset(){
-                this.wbPage = 1;
-                this.wbSearch.status = '';
-                this.wbSearch.buyId = '';
-                this.wbSearch.timeType = '';
-                this.wbSearch.time = '';
-                this.wbSearch.startTime = '';
-                this.wbSearch.endTime = '';
-                this.wbSearch.userName = '';
+                this.wbPageNo = 1;
             },
             wbCurrentChange(val){
-                this.wbPage = val;
+                this.wbPageNo = val;
                 this.wbQuery();
             },
-            weOpen(){
+            weOpen(type){
+                this.xlsType = type;
                 this.weShow = true;
             },
             weSubmit(){
                 this.$refs.orderUpload.submit();
             },
             queryShop(){
-              api.get('/api/shopList')({}).then((result) => {
+              api.post('/api/shopList')({pageSize: 50}).then((result) => {
+                this.shop = result.data.docs;
                 this.options.shop = [];
-                result.data.forEach((item,index)=>{
-                  this.options.shop.push({label:item.shopName,value:item._id});
+                result.data.docs.forEach((item,index)=>{
+                  this.options.shop.push({label:item.shopID,name:item.shopName,value:item.shopID,site:this.GData.shopeeSite[item.shopSite]});
+                  this.shopObj[item.shopID] = {shopSite:item.shopSite,shopName:item.shopName};
                 })
+                this.wbQuery();
               })
             },
         },
         mounted() {
-            this.wbQuery();
             this.queryShop();
         }
     }

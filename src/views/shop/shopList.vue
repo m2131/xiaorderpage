@@ -48,13 +48,13 @@
                           style="width: 100%;">
                     <el-table-column type="index" width="50"></el-table-column>
                     <el-table-column prop="shopID" label="店铺ID" min-width="70"></el-table-column>
-                    <el-table-column prop="shopName" label="店铺名称" min-width="130"></el-table-column>
+                    <el-table-column prop="shopName" label="店铺名称" min-width="150"></el-table-column>
                     <el-table-column prop="shopSite" label="店铺站点" min-width="70">
                       <template scope="scope">
                         {{GData.shopeeSite[scope.row.shopSite]}}
                       </template>
                     </el-table-column>
-                    <el-table-column prop="updateDate" label="更新时间" min-width="180"></el-table-column>
+                    <el-table-column prop="updateDate" label="更新时间" min-width="100"></el-table-column>
                     <el-table-column label="操作" min-width="150">
                         <template scope="scope">
                             <el-button size="mini" type="danger" @click="weOpen(scope.row)">编辑</el-button>
@@ -188,11 +188,11 @@
                         delete postData[key]
                     }
                 }
-                api.get('/api/shopList')(postData).then((result) => {
+                api.post('/api/shopList')(postData).then((result) => {
                     if(result.status == "200"){
-                        that.wbList = result.data;
-                        that.wbTotal = result.rowCount;
-                        that.wbPage = result.pageNo;
+                        that.wbList = result.data.docs;
+                        that.wbTotal = result.data.pageInfo.totalItems;
+                        that.wbPage = result.data.pageInfo.current;
                     }else{
                         that.wbList = [];
                         that.wbTotal = 0;

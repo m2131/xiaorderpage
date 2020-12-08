@@ -109,6 +109,19 @@ export default {
                 }
                 return priceF;
             },
+            /**
+             * 格式化价格-》万元
+             * @param {int} price
+             * */
+            formatDate (row, column){
+                // 获取单元格数据
+                let data = row[column.property]
+                if (!data) {
+                    return ''
+                }
+                let dt = new Date(data)
+                return dt.getFullYear() + '-' + (dt.getMonth() + 1) + '-' + dt.getDate() + ' ' + dt.getHours() + ':' + dt.getMinutes() + ':' + dt.getSeconds()
+            }
         };
     }
 };
