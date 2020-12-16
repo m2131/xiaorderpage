@@ -5,8 +5,8 @@ var proxyConfig = require('./proxyConfig');
 module.exports = {
   build: {
     env: require('./prod.env'),
-    index: path.resolve(__dirname, '../dist/vueElement/index.html'),
-    assetsRoot: path.resolve(__dirname, '../dist/vueElement'),
+    index: path.resolve(__dirname, '../dist/index.html'),
+    assetsRoot: path.resolve(__dirname, '../dist'),
     // assetsSubDirectory: 'static',
     //assetsPublicPath: '/vueElement/',
 
