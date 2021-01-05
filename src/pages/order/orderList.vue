@@ -3,42 +3,35 @@
         <el-row>
             <el-col>
               <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-                <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
               </el-radio-group>
               <el-radio-group v-model="shopID" size="mini" style="margin:5px 0;" @change="changeShop">
-                <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
               </el-radio-group>
               <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-                <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
               </el-radio-group>
             </el-col>
-            <el-col :span="24">
+            <el-col :span="24" style="margin-top: 10px">
                 <el-form :inline="true"
-                         size="small"
+                         size="mini"
                          :model="wbSearch"
                          :label-position="'left'"
                          type="flex"
                          justify="space-around">
-                    <el-form-item>
-                        <el-select filterable
-                                   class="widthInput"
-                                   v-model="wbSearch.status"
-                                   placeholder="请选择状态">
-                            <el-option
-                                    v-for="item in options.status"
-                                    :key="item.value"
-                                    :label="item.label"
-                                    :value="item.value">
-                            </el-option>
-                        </el-select>
+                    <el-form-item label="订单日期">
+                        <el-date-picker
+                                v-model="wbSearch.orderDate"
+                                type="daterange"
+                                range-separator="至"
+                                :unlink-panels="true"
+                                start-placeholder="请选择开始日期"
+                                end-placeholder="请选择结束日期"
+                                placeholder="请选择日期"
+                                format="yyyy-MM-dd HH:mm:ss"
+                                value-format="yyyy-MM-dd HH:mm:ss">
+                        </el-date-picker>
                     </el-form-item>
-                    <el-form-item>
-                        <el-input v-model.trim="wbSearch.userName" placeholder="请输入商户名称"></el-input>
-                    </el-form-item>
-                    <el-form-item>
-                        <el-input v-model.trim="wbSearch.goodName" placeholder="请输入商品名称"></el-input>
-                    </el-form-item>
-
                     <el-form-item>
                         <el-button type="primary"
                                    v-on:click="wbSelect"
@@ -61,17 +54,17 @@
                     <el-table-column type="index" width="50"></el-table-column>
                     <el-table-column prop="OrderID" label="单号" min-width="130"></el-table-column>
                     <el-table-column prop="OrderStatus" label="状态" min-width="70"></el-table-column>
-                    <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="120"></el-table-column>
+                    <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="135" :formatter="GTools.formatDate"></el-table-column>
                     <el-table-column prop="DeliveryMethod" label="寄送方式" min-width="120"></el-table-column>
                     <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
                     <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="300"></el-table-column>
                     <el-table-column prop="buyPrice" label="采购" min-width="80">
-                      <template scope="scope">
+                      <template slot-scope="scope">
                         <span>￥{{scope.row.buyPrice}}</span>
                       </template>
                     </el-table-column>
                     <el-table-column prop="DealPrice" label="商品售价(台)" min-width="90">
-                      <template scope="scope">
+                      <template slot-scope="scope">
 <!--                        <span style="color: #ccc;display: block;font-size: 14px">￥{{ (scope.row.DealPrice*0.2313).toFixed(2)}}</span>-->
                         <span style="color: #2494dc">{{scope.row.DealPrice}}</span>
                       </template>
@@ -113,9 +106,9 @@
 <!--                    <el-table-column prop="ShipmentMethod" label="出货方式" min-width="80"></el-table-column>-->
 <!--                    <el-table-column prop="PaymentMethod" label="付款方式" min-width="80"></el-table-column>-->
 <!--                    <el-table-column prop="OrderPaidTime" label="C付款時間" min-width="120"></el-table-column>-->
-                    <el-table-column prop="updateDate" label="更新时间" min-width="120":formatter="GTools.formatDate"></el-table-column>
+                    <el-table-column prop="updateDate" label="更新时间" min-width="135":formatter="GTools.formatDate"></el-table-column>
                     <el-table-column label="操作" min-width="150">
-                        <template scope="scope">
+                        <template slot-scope="scope">
                             <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
                             <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
                         </template>
@@ -128,17 +121,17 @@
                 <el-table-column type="index" width="50"></el-table-column>
                 <el-table-column prop="OrderID" label="单号" min-width="130"></el-table-column>
                 <el-table-column prop="OrderStatus" label="状态" min-width="70"></el-table-column>
-                <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="120"></el-table-column>
+                <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="135" :formatter="GTools.formatDate"></el-table-column>
                 <el-table-column prop="DeliveryMethod" label="寄送方式" min-width="120"></el-table-column>
                 <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
                 <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="300"></el-table-column>
                 <el-table-column prop="buyPrice" label="采购" min-width="80">
-                  <template scope="scope">
+                  <template slot-scope="scope">
                     <span>￥{{scope.row.buyPrice}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column prop="DealPrice" label="商品售价(马)" min-width="90">
-                  <template scope="scope">
+                  <template slot-scope="scope">
                     <!--                        <span style="color: #ccc;display: block;font-size: 14px">￥{{ (scope.row.DealPrice*0.2313).toFixed(2)}}</span>-->
                     <span style="color: #2494dc">{{scope.row.DealPrice}}</span>
                   </template>
@@ -180,9 +173,9 @@
                 <!--                    <el-table-column prop="ShipmentMethod" label="出货方式" min-width="80"></el-table-column>-->
                 <!--                    <el-table-column prop="PaymentMethod" label="付款方式" min-width="80"></el-table-column>-->
                 <!--                    <el-table-column prop="OrderPaidTime" label="C付款時間" min-width="120"></el-table-column>-->
-                <el-table-column prop="updateDate" label="更新时间" min-width="120":formatter="GTools.formatDate"></el-table-column>
+                <el-table-column prop="updateDate" label="更新时间" min-width="135":formatter="GTools.formatDate"></el-table-column>
                 <el-table-column label="操作" min-width="150">
-                  <template scope="scope">
+                  <template slot-scope="scope">
                     <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
                     <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
                   </template>
@@ -194,17 +187,17 @@
                 <el-table-column type="index" width="50"></el-table-column>
                 <el-table-column prop="OrderID" label="单号" min-width="135"></el-table-column>
                 <el-table-column prop="OrderStatus" label="状态" min-width="70"></el-table-column>
-                <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="120"></el-table-column>
+                <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="135" :formatter="GTools.formatDate"></el-table-column>
                 <el-table-column prop="DeliveryMethod" label="寄送方式" min-width="120"></el-table-column>
                 <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
                 <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="300"></el-table-column>
                 <el-table-column prop="buyPrice" label="采购" min-width="80">
-                  <template scope="scope">
+                  <template slot-scope="scope">
                     <span>￥{{scope.row.buyPrice}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column prop="DealPrice" label="商品售价(菲)" min-width="90">
-                  <template scope="scope">
+                  <template slot-scope="scope">
                     <!--                        <span style="color: #ccc;display: block;font-size: 14px">￥{{ (scope.row.DealPrice*0.2313).toFixed(2)}}</span>-->
                     <span style="color: #2494dc">{{scope.row.DealPrice}}</span>
                   </template>
@@ -246,9 +239,9 @@
                 <!--                    <el-table-column prop="ShipmentMethod" label="出货方式" min-width="80"></el-table-column>-->
                 <!--                    <el-table-column prop="PaymentMethod" label="付款方式" min-width="80"></el-table-column>-->
                 <!--                    <el-table-column prop="OrderPaidTime" label="C付款時間" min-width="120"></el-table-column>-->
-                <el-table-column prop="updateDate" label="更新时间" min-width="120":formatter="GTools.formatDate"></el-table-column>
+                <el-table-column prop="updateDate" label="更新时间" min-width="135":formatter="GTools.formatDate"></el-table-column>
                 <el-table-column label="操作" min-width="150">
-                  <template scope="scope">
+                  <template slot-scope="scope">
                     <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
                     <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
                   </template>
@@ -323,7 +316,9 @@
                 shopSite:'tw',
                 xlsType:"order",
                 wbSearch:{
-
+                    orderDate:["2020-08-06 00:00:00", "2021-02-26 00:00:00"],
+                    orderStart:"",
+                    orderEnd:"",
                 },
                 wbList:[],
                 wbShow:false,
@@ -360,6 +355,11 @@
                     shopSite: this.shopSite,
                     pageNo: this.wbPageNo,
                     pageSize: this.wbPageSize,
+                }
+                if(postData.orderDate){
+                    postData.orderStart = postData.orderDate[0];
+                    postData.orderEnd = postData.orderDate[1];
+                    delete postData.orderDate;
                 }
                 api.post('/api/orderList')(postData).then((result) => {
                     if(result.status == "200"){

@@ -50,13 +50,13 @@
                     <el-table-column prop="shopID" label="店铺ID" min-width="70"></el-table-column>
                     <el-table-column prop="shopName" label="店铺名称" min-width="150"></el-table-column>
                     <el-table-column prop="shopSite" label="店铺站点" min-width="70">
-                      <template scope="scope">
+                      <template slot-scope="scope">
                         {{GData.shopeeSite[scope.row.shopSite]}}
                       </template>
                     </el-table-column>
                     <el-table-column prop="updateDate" label="更新时间" min-width="100"></el-table-column>
                     <el-table-column label="操作" min-width="150">
-                        <template scope="scope">
+                        <template slot-scope="scope">
                             <el-button size="mini" type="danger" @click="weOpen(scope.row)">编辑</el-button>
                             <el-button size="mini" type="danger" @click="weDelete(scope.row)">删除</el-button>
                         </template>

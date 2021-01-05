@@ -3,13 +3,13 @@
     <el-row>
       <el-col>
         <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-          <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+          <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
         </el-radio-group>
         <el-radio-group v-model="shopID" size="mini" style="margin:5px 0;" @change="changeShop">
-          <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+          <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
         </el-radio-group>
         <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-          <el-radio-button v-for="(item,key) in shop" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
+          <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
         </el-radio-group>
       </el-col>
 
@@ -18,16 +18,16 @@
                   style="width: 100%;">
           <el-table-column type="index" width="50"></el-table-column>
           <el-table-column prop="buyShopID" label="上家店铺" min-width="100">
-            <template scope="scope"><a v-if="scope.row.buyShopID" style="text-decoration: none;color: #3c6ccc" :href="scope.row.buyShopID" target="_blank">点击前往</a></template>
+            <template slot-scope="scope"><a v-if="scope.row.buyShopID" style="text-decoration: none;color: #3c6ccc" :href="scope.row.buyShopID" target="_blank">点击前往</a></template>
           </el-table-column>
           <el-table-column prop="buyAccount" label="购买账号" min-width="100">
-            <template scope="scope">{{options.buyAccountObj[scope.row.buyAccount]}}</template>
+            <template slot-scope="scope">{{options.buyAccountObj[scope.row.buyAccount]}}</template>
           </el-table-column>
           <el-table-column prop="buyPayAccount" label="支付账号" min-width="100">
-            <template scope="scope">{{options.buyPayAccountObj[scope.row.buyPayAccount]}}</template>
+            <template slot-scope="scope">{{options.buyPayAccountObj[scope.row.buyPayAccount]}}</template>
           </el-table-column>
           <el-table-column prop="buyPrice" label="购买费用" min-width="100">
-            <template scope="scope">{{scope.row.buyPrice?'￥'+scope.row.buyPrice:''}}</template>
+            <template slot-scope="scope">{{scope.row.buyPrice?'￥'+scope.row.buyPrice:''}}</template>
           </el-table-column>
           <el-table-column prop="buyTime" label="采购时间" min-width="130":formatter="GTools.formatDate"></el-table-column>
           <el-table-column prop="OrderID" label="单号" min-width="130"></el-table-column>
@@ -36,14 +36,14 @@
           <el-table-column prop="DeliveryMethod" label="虾皮快递" min-width="100"></el-table-column>
           <el-table-column prop="buySendCompany" label="物流公司" min-width="100"></el-table-column>
           <el-table-column prop="buySendType" label="寄送方式" min-width="130">
-            <template scope="scope">{{options.buySendTypeObj[scope.row.buySendType]}}</template>
+            <template slot-scope="scope">{{options.buySendTypeObj[scope.row.buySendType]}}</template>
           </el-table-column>
           <el-table-column prop="buySendOrderNo" label="上家物流单号" min-width="130"></el-table-column>
           <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
           <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="350"></el-table-column>
           <el-table-column prop="updateDate" label="更新时间" min-width="130" :formatter="GTools.formatDate"></el-table-column>
           <el-table-column label="操作" min-width="80" fixed="right">
-            <template scope="scope">
+            <template slot-scope="scope">
               <el-button size="mini" type="danger" @click="weOpen(scope.row)">采购</el-button>
             </template>
           </el-table-column>
