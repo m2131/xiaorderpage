@@ -1,17 +1,18 @@
 <template>
     <section style="background: #fff;padding: 20px;">
         <el-row>
-            <el-col>
-              <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
-              </el-radio-group>
-              <el-radio-group v-model="shopID" size="mini" style="margin:5px 0;" @change="changeShop">
-                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
-              </el-radio-group>
-              <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
-              </el-radio-group>
-            </el-col>
+<!--            <el-col>-->
+<!--              <el-radio-group v-model="shopID" size="mini" @change="changeShop">-->
+<!--                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>-->
+<!--              </el-radio-group>-->
+<!--              <el-radio-group v-model="shopID" size="mini" style="margin:5px 0;" @change="changeShop">-->
+<!--                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>-->
+<!--              </el-radio-group>-->
+<!--              <el-radio-group v-model="shopID" size="mini" @change="changeShop">-->
+<!--                <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>-->
+<!--              </el-radio-group>-->
+
+<!--            </el-col>-->
             <el-col :span="24" style="margin-top: 10px">
                 <el-form :inline="true"
                          size="mini"
@@ -19,6 +20,28 @@
                          :label-position="'left'"
                          type="flex"
                          justify="space-around">
+                    <el-form-item label="店铺">
+                        <el-select filterable
+                                   v-model="shopID"
+                                   clearable
+                                   @change="changeShop"
+                                   placeholder="请选择店铺">
+                            <el-option
+                                    v-for="item in options.shop"
+                                    :key="item.value"
+                                    :label="item.label+' - '+item.site"
+                                    :value="item.value">
+                                <span style="color: #1689ee;width: 60px;display: inline-block;">{{item.label}}</span>
+                                <span style="color: #ccc;width: 60px;display: inline-block;">{{item.site}}</span>
+                                <span>{{item.name}}</span>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="状态">
+                        <el-select filterable v-model="wbSearch.orderStatus" clearable placeholder="请选择状态">
+                            <el-option v-for="item in options.orderStatus" :key="item.value" :label="item.label" :value="item.value">{{item.label}}</el-option>
+                        </el-select>
+                    </el-form-item>
                     <el-form-item label="订单日期">
                         <el-date-picker
                                 v-model="wbSearch.orderDate"
@@ -31,6 +54,12 @@
                                 format="yyyy-MM-dd HH:mm:ss"
                                 value-format="yyyy-MM-dd HH:mm:ss">
                         </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="排除已取消">
+                        <el-switch v-model="wbSearch.exclusionCanceled"></el-switch>
+                    </el-form-item>
+                    <el-form-item label="合并订单">
+                        <el-switch v-model="wbSearch.mergeOrder"></el-switch>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary"
@@ -47,8 +76,50 @@
             <el-col style="margin: 10px 0;">
                 <el-button size="mini" type="danger" @click="weOpen('order')">导入订单</el-button>
                 <el-button size="mini" type="danger" @click="weOpen('income')">导入打款</el-button>
+                <span>
+                    总销售额：{{wbTotalSellAmount}}
+                </span>
+                <span>
+                    总采购额：{{wbTotalBuyAmount}}
+                </span>
             </el-col>
             <el-col>
+                <el-table v-if="!shopSite" :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
+                          style="width: 100%;">
+                    <el-table-column type="index" width="50"></el-table-column>
+                    <el-table-column prop="OrderID" label="单号" min-width="130"></el-table-column>
+                    <el-table-column prop="OrderStatus" label="状态" min-width="70"></el-table-column>
+                    <el-table-column prop="OrderCreationDate" label="订单成立时间" min-width="135" :formatter="GTools.formatDate"></el-table-column>
+                    <el-table-column prop="DeliveryMethod" label="寄送方式" min-width="120"></el-table-column>
+                    <el-table-column prop="NoOfProductInOrder" label="數量" min-width="50"></el-table-column>
+                    <el-table-column prop="SKUReferenceNo" label="商品款式" min-width="300"></el-table-column>
+                    <el-table-column prop="buyPrice" label="采购" min-width="80">
+                        <template slot-scope="scope">
+                            <span>￥{{scope.row.buyPrice}}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="DealPrice" label="商品售价" min-width="90">
+                        <template slot-scope="scope">
+                            <span style="color: #2494dc">{{scope.row.DealPrice}}[{{scope.row.shopSite}}]</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="_AppropriationMoney" label="拨款" min-width="80"></el-table-column>
+                    <el-table-column prop="_RealityExpressFee" label="实际运费" min-width="80"></el-table-column>
+                    <el-table-column prop="_BuyerExpressFee" label="买家运费" min-width="80"></el-table-column>
+                    <el-table-column prop="_ShopeeExpressFee" label="XP运费补贴" min-width="90"></el-table-column>
+                    <el-table-column prop="_TransactionFee" label="交易手续费" min-width="80"></el-table-column>
+                    <el-table-column prop="_ServiceFee" label="服务费" min-width="80"></el-table-column>
+                    <el-table-column prop="_Commission" label="佣金" min-width="80"></el-table-column>
+                    <el-table-column prop="_RefundAmount" label="退款金額" min-width="80"></el-table-column>
+                    <el-table-column prop="updateDate" label="更新时间" min-width="135":formatter="GTools.formatDate"></el-table-column>
+                    <el-table-column label="操作" min-width="150">
+                        <template slot-scope="scope">
+                            <el-button size="mini" type="danger" @click="wcOpen(scope.row)">编辑</el-button>
+                            <el-button size="mini" type="danger" @click="wbDelete(scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+
                 <el-table v-if="shopSite=='tw'" :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
                           style="width: 100%;">
                     <el-table-column type="index" width="50"></el-table-column>
@@ -312,13 +383,16 @@
             return {
                 shop:[],
                 shopObj:{},
-                shopID:'xj_zwf',
-                shopSite:'tw',
+                shopID:'',
+                shopSite:'',
                 xlsType:"order",
                 wbSearch:{
-                    orderDate:["2020-08-06 00:00:00", "2021-02-26 00:00:00"],
+                    orderDate:["", ""],
                     orderStart:"",
                     orderEnd:"",
+                    orderStatus:"",
+                    exclusionCanceled:true,
+                    mergeOrder:true,
                 },
                 wbList:[],
                 wbShow:false,
@@ -326,11 +400,20 @@
                 wbTotal:1,
                 wbPageSize:10,
                 wbPageNo:1,
+                wbTotalSellAmount:0,
+                wbTotalBuyAmount:0,
                 options: {
                     shop:[
                         {value: 'xj_zwf', label: 'xj_zwf'},
                         {value: 'xj_lw.my', label: 'xj_lw.my'},
                         {value: 'xj_lw.ph', label: 'xj_lw.ph'},
+                    ],
+                    orderStatus:[
+                        {value: '待出貨', label: '待出貨'},
+                        {value: '已取消', label: '已取消'},
+                        {value: '完成', label: '完成'},
+                        {value: '尚未付款', label: '尚未付款'},
+                        {value: '運送中', label: '運送中'},
                     ]
                 },
                 weShow:false,
@@ -344,8 +427,13 @@
         },
         methods: {
             changeShop(row){
-              this.shopSite = this.shopObj[row].shopSite;
-              this.wbQuery();
+                if(row == ""){
+                    this.shopID = "";
+                    this.shopSite = "";
+                }else{
+                    this.shopSite = this.shopObj[row].shopSite;
+                }
+                this.wbQuery();
             },
             wbQuery(){
                 let that = this;
@@ -367,6 +455,8 @@
                         that.wbPageSize = result.data.pageInfo.pageSize;
                         that.wbPageNo = result.data.pageInfo.current;
                         that.wbTotal = result.data.pageInfo.totalItems;
+                        that.wbTotalSellAmount = result.data.pageInfo.totalSellAmount;
+                        that.wbTotalBuyAmount = result.data.pageInfo.totalBuyAmount;
                     }else{
                         that.wbList = [];
                         that.wbTotal = 0;

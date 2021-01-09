@@ -1,18 +1,66 @@
 <template>
   <section style="background: #fff;padding: 20px;">
     <el-row>
-      <el-col>
-        <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-          <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key<=10">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
-        </el-radio-group>
-        <el-radio-group v-model="shopID" size="mini" style="margin:5px 0;" @change="changeShop">
-          <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>10 && key<=20">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
-        </el-radio-group>
-        <el-radio-group v-model="shopID" size="mini" @change="changeShop">
-          <el-radio-button v-for="(item,key) in shop" :key="item.shopID" :label="item.shopID" v-if="key>20 && key<=30">{{item.shopID}} [{{item.shopSite}}]</el-radio-button>
-        </el-radio-group>
+      <el-col :span="24" style="margin-top: 10px">
+        <el-form :inline="true"
+                 size="mini"
+                 :model="wbSearch"
+                 :label-position="'left'"
+                 type="flex"
+                 justify="space-around">
+          <el-form-item label="店铺">
+            <el-select filterable
+                       v-model="shopID"
+                       clearable
+                       @change="changeShop"
+                       placeholder="请选择店铺">
+              <el-option
+                      v-for="item in options.shop"
+                      :key="item.value"
+                      :label="item.label+' - '+item.site"
+                      :value="item.value">
+                <span style="color: #1689ee;width: 60px;display: inline-block;">{{item.label}}</span>
+                <span style="color: #ccc;width: 60px;display: inline-block;">{{item.site}}</span>
+                <span>{{item.name}}</span>
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="状态">
+            <el-select filterable v-model="wbSearch.orderStatus" clearable placeholder="请选择状态">
+              <el-option v-for="item in options.orderStatus" :key="item.value" :label="item.label" :value="item.value">{{item.label}}</el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="订单日期">
+            <el-date-picker
+                    v-model="wbSearch.orderDate"
+                    type="daterange"
+                    range-separator="至"
+                    :unlink-panels="true"
+                    start-placeholder="请选择开始日期"
+                    end-placeholder="请选择结束日期"
+                    placeholder="请选择日期"
+                    format="yyyy-MM-dd HH:mm:ss"
+                    value-format="yyyy-MM-dd HH:mm:ss">
+            </el-date-picker>
+          </el-form-item>
+          <el-form-item label="排除已取消">
+            <el-switch v-model="wbSearch.exclusionCanceled"></el-switch>
+          </el-form-item>
+          <el-form-item label="合并订单">
+            <el-switch v-model="wbSearch.mergeOrder"></el-switch>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary"
+                       v-on:click="wbSelect"
+                       icon="el-icon-search">
+            </el-button>
+            <el-button type="default"
+                       @click="wbReset"
+                       icon="el-icon-refresh">
+            </el-button>
+          </el-form-item>
+        </el-form>
       </el-col>
-
       <el-col style="margin-top: 20px;">
         <el-table :data="wbList" stripe size="small" highlight-current-row v-loading="wblistLoading"
                   style="width: 100%;">
@@ -120,17 +168,15 @@ export default {
     return {
       shop:[],
       shopObj:{},
-      shopID:'xj_zwf',
-      shopSite:'tw',
+      shopID:'',
+      shopSite:'',
       wbSearch:{
-        buyId:'',
-        timeType:'',
-        time:'',
-        startTime:'',
-        endTime:'',
-        userName:'',
-        productId:'',
-        goodName:'',
+        orderDate:["", ""],
+        orderStart:"",
+        orderEnd:"",
+        orderStatus:"",
+        exclusionCanceled:true,
+        mergeOrder:false,
       },
       wbList:[],
       wbShow:false,
@@ -224,7 +270,12 @@ export default {
   },
   methods: {
     changeShop(row){
-      this.shopSite = this.shopObj[row].shopSite;
+      if(row == ""){
+        this.shopID = "";
+        this.shopSite = "";
+      }else{
+        this.shopSite = this.shopObj[row].shopSite;
+      }
       this.wbQuery();
     },
     wbQuery(){
